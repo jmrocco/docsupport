@@ -1,7 +1,7 @@
 import os
 import sys
 import argparse
-import easygui
+# import easygui
 
 from user.userbase import Community
 from builder.docbase import Builder
@@ -26,11 +26,15 @@ def main():
         builder = Builder(args.retrieve)
         print(builder.proj_dir)
 
-
     elif args.wpfile:
-        path = easygui.fileopenbox()
-        wpContent = WpConverter(path)
+        # path = easygui.fileopenbox()
+        # let's hardcode in our xml file
+        with open('kauri.xml', 'r') as f:
+            xml_file = f.read()
+
+        wpContent = WpConverter(xml_file)
         print(wpContent)
+
     else:
         # handle error since no other builders
         print('Your documentation is not supported yet.')
