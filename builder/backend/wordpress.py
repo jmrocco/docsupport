@@ -1,5 +1,7 @@
 import pprint
-import tomd from bs4 import BeautifulSoup 
+import tomd
+from bs4 import BeautifulSoup
+
 class WpConverter():
 
     def __init__(s,path):
@@ -60,10 +62,7 @@ class WpConverter():
             my_list[y]['content']= tomd.convert(my_list[y]['content'])
 
         s.emptyContents()
-        
-
-
-
+        print(type(my_list))
         return my_list
     #    s.__repr__()
         #s.__str__()
