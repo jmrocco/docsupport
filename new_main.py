@@ -1,8 +1,7 @@
 import os
 import sys
-import easygui
-from flask import Flask, jsonify
-#from builder.backend.wordpress import WpConverter
+from flask import Flask, jsonify,request
+from builder.backend.wordpress import WpConverter
 app = Flask(__name__)
 #home screen
 
@@ -23,7 +22,7 @@ see link: http://flask.pocoo.org/docs/1.0/reqcontext/
 def entry_point():
     # ask user where they're importing documentation from
     # current choices: medium, mkdocs, wordpress, github (soon)
-    return('Home page: go to /link or /file')
+    return('Home page: go to /link')
 
 @app.route('/link', methods =['GET', 'POST'])
 def retrieve_content():
@@ -48,9 +47,26 @@ def retrieve_content():
         return mk_article_list
 
     elif request.args.get('wordpress_xml_file'):
-        #send to Wordpress backend
-        # similar logic to mkdocs above
-        return wp_article_list
+
+        path = request.args.get('wordpress_xml_file')
+        filename,file_extension = os.path.splitext(path)
+
+        if (file_extension == ".xml"):
+            #send the path to wordpress WpConverter
+            wp_article_list = WpConverter(path)
+            # recieve string/list
+
+            #convert to json format
+
+            print(wp_article_list)
+            # return '''<form method="POST">
+            #      wp_article_list : {}
+            #       </form>'''.format(wp_article_list)
+            ## as soon as you try to return it will not work, it will print it though as a string
+        else:
+            return ('Not a wordpress file.')
+
+
 
     elif request.args.get('medium_url'):
         #send to Medium backend
@@ -61,19 +77,6 @@ def retrieve_content():
         # more sophisticated error handling here later
 
     return('Getting your documents!')
-
-#if you have a file
-@app.route('/file', methods =['GET'])
-def get_file():
-    #opens file and determines extension
-    path = easygui.fileopenbox()
-    fn,fe = os.path.splitext(path)
-    #xml file
-    if (fe == ".xml"):
-        return('You have an xml file!')
-    #other file
-    else:
-        return ('Document not supported yet.')
 
 if __name__ == '__main__':
     app.run(debug=True)

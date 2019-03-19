@@ -62,13 +62,9 @@ class WpConverter():
             my_list[y]['content']= tomd.convert(my_list[y]['content'])
 
         s.emptyContents()
-        print(type(my_list))
-        return my_list
-    #    s.__repr__()
-        #s.__str__()
+        s.__repr__()
 
-    #def __repr__(s):
-     #  return(str(my_list))
-
-    #def __str__(s):
-        #return(my_list)
+    def __repr__(s):
+        new_list= str(my_list)
+        return new_list
+        #return my_list
