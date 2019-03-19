@@ -1,8 +1,10 @@
 import os
 import sys
+import json
 from flask import Flask, jsonify,request
 from builder.backend.wordpress import WpConverter
 app = Flask(__name__)
+import pprint
 #home screen
 
 kauri_gateway = 'https://api.kauri.io/graphql'
@@ -34,15 +36,15 @@ def retrieve_content():
     if request.args.get('mkdocs_repo_url'):
         #send to MkDocs backend, and then return our article_list
         url = request.args.get('mkdocs_repo_url')
-
-        community = Community(url)
-        builder = Builder(url)
-
-        mk_article_list = MkDocsBuilder(
-            builder.proj_dir,
-            builder.docs_dir,
-            builder.repo_url,
-        )
+        #
+        # community = Community(url)
+        # builder = Builder(url)
+        #
+        # mk_article_list = MkDocsBuilder(
+        #     builder.proj_dir,
+        #     builder.docs_dir,
+        #     builder.repo_url,
+        # )
 
         return mk_article_list
 
@@ -54,15 +56,14 @@ def retrieve_content():
         if (file_extension == ".xml"):
             #send the path to wordpress WpConverter
             wp_article_list = WpConverter(path)
-            # recieve string/list
+            # change to a string
+            wp_string = str(wp_article_list)
+            # convert to a list/json object
+            wp_json_object = json.loads(wp_string)
+            #print one of the article contents
+            print(wp_json_object[2]['content'])
+            #pprint.pprint(wp_json_object)
 
-            #convert to json format
-
-            print(wp_article_list)
-            # return '''<form method="POST">
-            #      wp_article_list : {}
-            #       </form>'''.format(wp_article_list)
-            ## as soon as you try to return it will not work, it will print it though as a string
         else:
             return ('Not a wordpress file.')
 

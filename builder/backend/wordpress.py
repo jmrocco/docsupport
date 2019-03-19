@@ -1,5 +1,6 @@
 import pprint
 import tomd
+import json
 from bs4 import BeautifulSoup
 
 class WpConverter():
@@ -39,8 +40,6 @@ class WpConverter():
         date = temp_date
         temp_author = soup.find('dc:creator')
         author = temp_author
-        temp_description = soup.find('description')
-        description = temp_description
         temp_content = soup.find('content:encoded')
         content = temp_content
         num_of_articles = len(soup.find_all('title'))
@@ -50,9 +49,8 @@ class WpConverter():
             title = title.findNext('title')
             link = link.findNext('link')
             date = date.findNext('pubDate')
-            description = description.findNext('description')
             my_list.append({'title': title.get_text(), 'link': link.get_text(), 'date': date.get_text(), 'author':
-                            author.get_text(), 'description': description.get_text(), 'content': content.get_text()})
+                            author.get_text(), 'content': content.get_text()})
             content = content.findNext('content:encoded')
             author = author.findNext('dc:creator')
 
@@ -60,11 +58,12 @@ class WpConverter():
         for y in range(len(my_list)):
             my_list[y]['content'] = my_list[y]['content'].replace('</li>','</li>\n')
             my_list[y]['content']= tomd.convert(my_list[y]['content'])
-
         s.emptyContents()
-        s.__repr__()
+
+    def __str__(s):
+        string = json.dumps(my_list)
+        return string
 
     def __repr__(s):
-        new_list= str(my_list)
-        return new_list
-        #return my_list
+        string = json.dumps(my_list)
+        return string
