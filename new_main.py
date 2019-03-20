@@ -3,8 +3,10 @@ import sys
 import json
 from flask import Flask, jsonify,request
 from builder.backend.wordpress import WpConverter
+from sync import syncToKauri
+
 app = Flask(__name__)
-import pprint
+
 #home screen
 
 kauri_gateway = 'https://api.kauri.io/graphql'
@@ -36,34 +38,38 @@ def retrieve_content():
     if request.args.get('mkdocs_repo_url'):
         #send to MkDocs backend, and then return our article_list
         url = request.args.get('mkdocs_repo_url')
-        #
+
         # community = Community(url)
         # builder = Builder(url)
         #
         # mk_article_list = MkDocsBuilder(
-        #     builder.proj_dir,
-        #     builder.docs_dir,
-        #     builder.repo_url,
-        # )
+        #      builder.proj_dir,
+        #      builder.docs_dir,
+        #      builder.repo_url,
+        #  )
 
         return mk_article_list
 
+    # wordpress approach
     elif request.args.get('wordpress_xml_file'):
-
+        # checks path to see if it's an xml file
         path = request.args.get('wordpress_xml_file')
         filename,file_extension = os.path.splitext(path)
 
-        if (file_extension == ".xml"):
-            #send the path to wordpress WpConverter
-            wp_article_list = WpConverter(path)
-            # change to a string
-            wp_string = str(wp_article_list)
-            # convert to a list/json object
-            wp_json_object = json.loads(wp_string)
-            #print one of the article contents
-            print(wp_json_object[2]['content'])
-            #pprint.pprint(wp_json_object)
 
+        if (file_extension == ".xml"):
+            # convert the file, change to a string and put it
+            # in a sendable json format
+            wp_article_list = WpConverter(path)
+            wp_string = str(wp_article_list)
+            wp_json_object = json.loads(wp_string)
+
+            #individually send the articles to the sync
+            for x in range(len(wp_json_object)):
+                object = wp_json_object[x]
+                syncToKauri(object)
+                
+        #recognized that it is not a wordpress supported file
         else:
             return ('Not a wordpress file.')
 
@@ -81,6 +87,3 @@ def retrieve_content():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-## problems: I can't import the WpConverter to use in this file
-## ModuleNotFoundError: No module named 'builder'
