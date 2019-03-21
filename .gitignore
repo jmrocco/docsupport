@@ -1,0 +1,5 @@
+# ignore all ini files
+*.ini
+
+#ignore create file
+create_config.py

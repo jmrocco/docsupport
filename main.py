@@ -1,10 +1,12 @@
 import os
 import sys
 import argparse
+import easygui
 
 from user.userbase import Community
 from builder.docbase import Builder
 from builder.backend.mkdocs import MkDocsBuilder
+from builder.backend.wordpress import WpConverter
 
 def main():
     args = parser.parse_args()
@@ -20,18 +22,17 @@ def main():
         # 3) copy markdown files to target folder
 
         community = Community(args.retrieve)
-        
+
         builder = Builder(args.retrieve)
         print(builder.proj_dir)
 
-    if builder.is_mkdocs:
-        mk = MkDocsBuilder(
-            builder.proj_dir,
-            builder.docs_dir,
-            builder.repo_url,
-        )
+
+    elif args.wpfile:
+        path = easygui.fileopenbox()
+        wpContent = WpConverter(path)
+        print(wpContent)
     else:
-        # handle error since no other builders 
+        # handle error since no other builders
         print('Your documentation is not supported yet.')
 
 
@@ -42,7 +43,12 @@ if __name__ == "__main__":
     parser.add_argument(
         '-r',
         dest='retrieve',
-        help='retrieve your documentation', 
+        help='retrieve your documentation',
+    )
+    parser.add_argument(
+        '-w',
+        dest='wpfile',
+        help ='import your wordpress xml file',
     )
     parser.add_argument(
         '-b',
