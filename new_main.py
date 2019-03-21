@@ -68,13 +68,13 @@ def retrieve_content():
             for x in range(len(wp_json_object)):
                 object = wp_json_object[x]
                 syncToKauri(object)
-                
+
         #recognized that it is not a wordpress supported file
         else:
             return ('Not a wordpress file.')
 
 
-
+    #medium approach
     elif request.args.get('medium_url'):
         #send to Medium backend
         return medium_article_list
@@ -82,7 +82,7 @@ def retrieve_content():
     else:
         print('error retrieving your documentation')
         # more sophisticated error handling here later
-
+    
     return('Getting your documents!')
 
 if __name__ == '__main__':

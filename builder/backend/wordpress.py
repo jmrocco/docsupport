@@ -10,11 +10,12 @@ class WpConverter():
         s.create_file = s.createFile()
         s.find_contents = s.findContents()
         s.empty_contents = s.emptyContents()
+        s.format_contents = s.format()
         s.to_markdown = s.toMarkdown()
 
     # take file and create soup object
     def createFile(s):
-        file = open(s.path,"r")
+        file = open(s.path,"r",encoding = "utf8")
         content = file.read()
         global soup
         soup = BeautifulSoup(content,features = "xml")
@@ -73,13 +74,19 @@ class WpConverter():
             content = content.findNext('content:encoded')
             author = author.findNext('dc:creator')
 
+    # changes format of lists and images
+    def format(s):
+        for y in range(len(my_list)):
+            my_list[y]['content'] = my_list[y]['content'].replace('</li>','</li>\n')
+            my_list[y]['content'] = my_list[y]['content'].replace('/></figure>','></img></p>')
+            my_list[y]['content'] = my_list[y]['content'].replace('<figcaption>', '')
+            my_list[y]['content'] = my_list[y]['content'].replace('</figcaption>', '')
+            my_list[y]['content'] = my_list[y]['content'].replace('<img','<p><img')
+
     # converts to markdown
     def toMarkdown(s):
-        for y in range(len(my_list)):
-            #makes sure every list item is on a new line
-            my_list[y]['content'] = my_list[y]['content'].replace('</li>','</li>\n')
-            my_list[y]['content']= tomd.convert(my_list[y]['content'])
-
+        for z in range(len(my_list)):
+            my_list[z]['content']= tomd.convert(my_list[z]['content'])
         # double checks that empty articles are removed from list
         s.emptyContents()
 
@@ -88,7 +95,7 @@ class WpConverter():
         string = json.dumps(my_list)
         return string
 
-    #converts to proper string format 
+    #converts to proper string format
     def __repr__(s):
         string = json.dumps(my_list)
         return string

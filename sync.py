@@ -33,7 +33,7 @@ class syncToKauri():
             "query" : "mutation submitNewArticle($title: String, $description: String, $content: String, $attributes: Map_String_StringScalar) { submitNewArticle (title: $title, description: $description, content: $content, attributes: $attributes) {hash} }",
             "variables" : {
                 "title": wp_json_object['title'],
-                "content" : wp_json_object['content'],
+                "content" : json.dumps({'markdown': wp_json_object['content']}),
                 "attributes" : {
                     "origin_name" : "wordpress",
                     "origin_url" : wp_json_object['link'],
