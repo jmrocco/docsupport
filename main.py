@@ -1,58 +1,92 @@
 import os
 import sys
-import argparse
-import easygui
-
-from user.userbase import Community
-from builder.docbase import Builder
-from builder.backend.mkdocs import MkDocsBuilder
+import json
+import logging
+from flask import Flask, jsonify,request
 from builder.backend.wordpress import WpConverter
+from sync import syncToKauri
 
-def main():
-    args = parser.parse_args()
+#TODO: Implement other article types
 
-    # gather information about the github repo being imported
-    if args.retrieve:
-        print('Retrieving your documentation now.')
+#create the flask app
+app = Flask(__name__)
+kauri_gateway = 'https://api.kauri.io/graphql'
 
-        # authentication potentially required here
+"""
+user flow:
+1) determine where user is importing content from
+2) user chooses and provides information: url, xml file
+3) main file logic routes data to appropriate backend builder
 
-        # 1) clone repo
-        # 2) traverse for .md files
-        # 3) copy markdown files to target folder
+the way we did this in the importer was using flask's request.args.get() module
+see link: http://flask.pocoo.org/docs/1.0/reqcontext/
+"""
 
-        community = Community(args.retrieve)
+#home screen
+@app.route('/')
+def entry_point():
+    # ask user where they're importing documentation from
+    # current choices: medium, mkdocs, wordpress, github (soon)
+    return('Home page: go to /link')
 
-        builder = Builder(args.retrieve)
-        print(builder.proj_dir)
+#choice screen
+@app.route('/link', methods =['GET', 'POST'])
+def retrieve_content():
+    # use our backends to retrieve the requested content
+    print('Getting your content!')
+
+    #mkdocs approach
+    if request.args.get('mkdocs_repo_url'):
+        #send to MkDocs backend, and then return our article_list
+        url = request.args.get('mkdocs_repo_url')
+
+        # community = Community(url)
+        # builder = Builder(url)
+        #
+        # mk_article_list = MkDocsBuilder(
+        #      builder.proj_dir,
+        #      builder.docs_dir,
+        #      builder.repo_url,
+        #  )
+
+        return mk_article_list
+
+    # wordpress approach
+    elif request.args.get('wordpress_xml_file'):
+        # checks path to see if it's an xml file
+        path = request.args.get('wordpress_xml_file')
+        filename,file_extension = os.path.splitext(path)
 
 
-    elif args.wpfile:
-        path = easygui.fileopenbox()
-        wpContent = WpConverter(path)
-        print(wpContent)
+        if (file_extension == ".xml"):
+            # convert the file, change to a string and put it
+            # in json object form to send
+            wp_article_list = WpConverter(path)
+            wp_string = str(wp_article_list)
+            wp_json_object = json.loads(wp_string)
+
+            #individually send the articles to sync
+            for x in range(len(wp_json_object)):
+                object = wp_json_object[x]
+                syncToKauri(object)
+
+        #recognized that it is not a wordpress supported file
+        else:
+            return ('Not a wordpress file.')
+
+
+    #medium approach
+    elif request.args.get('medium_url'):
+        #send to Medium backend
+        return medium_article_list
+
     else:
-        # handle error since no other builders
-        print('Your documentation is not supported yet.')
+        # more sophisticated error handling here later
+        print('Error retrieving your documentation.')
 
+    #displays success message on the screen
+    return('Getting your documents!')
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description='host docs on kauri'
-    )
-    parser.add_argument(
-        '-r',
-        dest='retrieve',
-        help='retrieve your documentation',
-    )
-    parser.add_argument(
-        '-w',
-        dest='wpfile',
-        help ='import your wordpress xml file',
-    )
-    parser.add_argument(
-        '-b',
-        dest='bridge',
-        help='bridge your documentation to Kauri',
-    )
-    main()
+#allows for debugging
+if __name__ == '__main__':
+    app.run(debug=True)
