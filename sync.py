@@ -3,7 +3,7 @@ import requests
 import json
 from configparser import ConfigParser
 
-#TODO: more advanced logging system to go through all the files 
+#TODO: more advanced logging system to go through all the files
 #TODO: make this file more applicable to other types besides wordpress
 #TODO: replace token with real token fetcher and actual gateway
 

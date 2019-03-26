@@ -20,6 +20,7 @@ class WpConverter():
         s.find_contents = s.findContents()
         s.empty_contents = s.emptyContents()
         s.format_contents = s.format()
+        s.htmlParse_contents = s.htmlParse()
         s.to_markdown = s.toMarkdown()
 
     # open file and create soup object
@@ -31,6 +32,13 @@ class WpConverter():
         file = open(s.path,"r",encoding = "utf8")
         content = file.read()
         soup = BeautifulSoup(content,features = "xml")
+
+    def htmlParse(s):
+        for q in range(len(my_list)):
+            my_list[q]['content'] = my_list[q]['content'].replace('<br>', '')
+            my_list[q]['content'] = my_list[q]['content'].replace(' </em>','</em>')
+            my_list[q]['content'] = my_list[q]['content'].replace('<strong> ','<strong>')
+            my_list[q]['content'] = my_list[q]['content'].replace(' </strong>','</strong>')
 
 
     #delete blank articles from list
@@ -98,13 +106,20 @@ class WpConverter():
             my_list[y]['content'] = my_list[y]['content'].replace('<img','<p><img')
             my_list[y]['content'] = my_list[y]['content'].replace('</li>','</li>\n')
 
+
+
+
     # converts to markdown
     def toMarkdown(s):
+
         for z in range(len(my_list)):
+            print(my_list[0]['content'])
             my_list[z]['content']= tomd.convert(my_list[z]['content'])
+            print(z)
         # double checks that empty articles are removed from list
         s.emptyContents()
         s.ipfs_search()
+
 
     #takes links of images and adds them to kauri ipfs
     def ipfs_search(s):
