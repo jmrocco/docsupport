@@ -5,7 +5,7 @@ import re
 from bs4 import BeautifulSoup
 from configparser import ConfigParser
 from file_handler import IpfsHandler
-
+from markdownify import markdownify as md
 
 
 class WpConverter():
@@ -35,29 +35,37 @@ class WpConverter():
 
     def htmlParse(s):
         for q in range(len(my_list)):
-            my_list[q]['content'] = my_list[q]['content'].replace('<br>', '')
-            my_list[q]['content'] = my_list[q]['content'].replace(' </em>','</em>')
+            #fixes common tag errors from html
+            my_list[q]['content'] = my_list[q]['content'].replace('<em> ','<em>')
+            my_list[q]['content'] = my_list[q]['content'].replace(' </em>','</em>')
+            my_list[q]['content'] = my_list[q]['content'].replace(' </em>', '</em>')
+            my_list[q]['content'] = my_list[q]['content'].replace('<strong >','<strong>')
             my_list[q]['content'] = my_list[q]['content'].replace('<strong> ','<strong>')
             my_list[q]['content'] = my_list[q]['content'].replace(' </strong>','</strong>')
-
 
     #delete blank articles from list
     def emptyContents(s):
         count = 0
         while(count!= len(my_list)):
+            #searches to make sure there's no new line empty articles
+            pattern = re.compile(r'[^\n]')
+            find = pattern.search(my_list[count]['content'])
+            # it finds a new line empty article
+            if (find == None):
+                del my_list[count]
+            #deletes other empty article cases
             if(my_list[count]['content'] == ' '):
                 del my_list[count]
             elif(my_list[count]['content'] == ''):
                 del my_list[count]
             else:
                 count += 1
-
     #find content in xml file
     def findContents(s):
 
         """
         -finds the first element of each
-        -we don't need the first element since
+        -we don't need (use) the first element since
         it is associated with web details
         """
 
@@ -74,8 +82,8 @@ class WpConverter():
         """
         -finds the next item in the xml file and
         appends the list
-        -content and author are after the append because
-        they appear less times than the rest and this
+        -content is found after append because
+        it appears less times than the rest and this method
         prevents errors
         """
 
@@ -106,20 +114,30 @@ class WpConverter():
             my_list[y]['content'] = my_list[y]['content'].replace('<img','<p><img')
             my_list[y]['content'] = my_list[y]['content'].replace('</li>','</li>\n')
 
-
-
-
     # converts to markdown
     def toMarkdown(s):
 
         for z in range(len(my_list)):
-            print(my_list[0]['content'])
-            my_list[z]['content']= tomd.convert(my_list[z]['content'])
-            print(z)
+            #searches for articles written with the wp editor
+            # or written in html within wp
+            pattern = re.compile(r'<!-- wp:paragraph -->')
+            search = pattern.search(my_list[z]['content'])
+
+            if (search != None):
+                #articles written in wp editor are converted
+                my_list[z]['content']= tomd.convert(my_list[z]['content'])
+            else:
+                #tags are changed for html new line and list elements
+                my_list[z]['content'] = my_list[z]['content'].replace('\n','<br>')
+                my_list[z]['content'] = my_list[z]['content'].replace('<li>','<br><li>')
+                my_list[z]['content'] = my_list[z]['content'].replace('</li>','</li><br>')
+                # a different converter is used that is better for html
+                # that was written within the wp editor
+                my_list[z]['content'] = md(my_list[z]['content'])
         # double checks that empty articles are removed from list
         s.emptyContents()
+        #sends for the ipfs image search 
         s.ipfs_search()
-
 
     #takes links of images and adds them to kauri ipfs
     def ipfs_search(s):
@@ -139,7 +157,6 @@ class WpConverter():
                     ipfs_link = ipfs.ipfs_url
                     #replaces the link with the new ipfs link
                     my_list[q]['content']= my_list[q]['content'].replace(src[r],ipfs_link)
-
 
     #converts to proper string format
     def __str__(s):

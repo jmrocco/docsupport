@@ -62,7 +62,6 @@ class syncToKauri():
             logging.error( "title of article: " + wp_json_object['title'] + "Success : False")
             print ("Error, article: " + wp_json_object['title'] + " could not be synced to Kauri.")
 
-
     # makes sure the string is in the proper format
     def __str__(s,string):
         string = json.dumps(string)
