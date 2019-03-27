@@ -3,3 +3,6 @@
 
 #ignore create file
 create_config.py
+
+#ignore log file
+sync.log

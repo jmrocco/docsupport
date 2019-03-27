@@ -1,9 +1,18 @@
 import pprint
 import tomd
 import json
+import re
 from bs4 import BeautifulSoup
+from configparser import ConfigParser
+from file_handler import IpfsHandler
+from markdownify import markdownify as md
+
 
 class WpConverter():
+    global parser
+    # reads from the config file
+    parser = ConfigParser()
+    parser.read('config.ini')
 
     def __init__(s,path):
         s.path = path
@@ -11,34 +20,53 @@ class WpConverter():
         s.find_contents = s.findContents()
         s.empty_contents = s.emptyContents()
         s.format_contents = s.format()
+        s.htmlParse_contents = s.htmlParse()
         s.to_markdown = s.toMarkdown()
 
-    # take file and create soup object
+    # open file and create soup object
     def createFile(s):
-        file = open(s.path,"r",encoding = "utf8")
-        content = file.read()
         global soup
-        soup = BeautifulSoup(content,features = "xml")
         global my_list
         my_list = []
 
-    #clear blank articles from list
+        file = open(s.path,"r",encoding = "utf8")
+        content = file.read()
+        soup = BeautifulSoup(content,features = "xml")
+
+    def htmlParse(s):
+        for q in range(len(my_list)):
+            #fixes common tag errors from html
+            my_list[q]['content'] = my_list[q]['content'].replace('<em> ','<em>')
+            # there are two of the following because for some reason it gltiches 
+            my_list[q]['content'] = my_list[q]['content'].replace(' </em>','</em>')
+            my_list[q]['content'] = my_list[q]['content'].replace(' </em>', '</em>')
+            my_list[q]['content'] = my_list[q]['content'].replace('<strong >','<strong>')
+            my_list[q]['content'] = my_list[q]['content'].replace('<strong> ','<strong>')
+            my_list[q]['content'] = my_list[q]['content'].replace(' </strong>','</strong>')
+
+    #delete blank articles from list
     def emptyContents(s):
         count = 0
         while(count!= len(my_list)):
+            #searches to make sure there's no new line empty articles
+            pattern = re.compile(r'[^\n]')
+            find = pattern.search(my_list[count]['content'])
+            # it finds a new line empty article
+            if (find == None):
+                del my_list[count]
+            #deletes other empty article cases
             if(my_list[count]['content'] == ' '):
                 del my_list[count]
             elif(my_list[count]['content'] == ''):
                 del my_list[count]
             else:
                 count += 1
-
     #find content in xml file
     def findContents(s):
 
         """
         -finds the first element of each
-        -we don't need the first element since
+        -we don't need (use) the first element since
         it is associated with web details
         """
 
@@ -46,10 +74,6 @@ class WpConverter():
         title = temp_title
         temp_link = soup.find('link')
         link = temp_link
-        temp_date = soup.find('pubDate')
-        date = temp_date
-        temp_author = soup.find('dc:creator')
-        author = temp_author
         temp_content = soup.find('content:encoded')
         content = temp_content
 
@@ -59,8 +83,8 @@ class WpConverter():
         """
         -finds the next item in the xml file and
         appends the list
-        -content and author are after the append because
-        they appear less times than the rest and this
+        -content is found after append because
+        it appears less times than the rest and this method
         prevents errors
         """
 
@@ -68,29 +92,74 @@ class WpConverter():
         for x in range(num_of_articles - 1):
             title = title.findNext('title')
             link = link.findNext('link')
-            date = date.findNext('pubDate')
-            my_list.append({'title': title.get_text(), 'link': link.get_text(), 'date': date.get_text(), 'author':
-                            author.get_text(), 'content': content.get_text()})
+            my_list.append({'title': title.get_text(), 'link': link.get_text(),'content': content.get_text()})
             content = content.findNext('content:encoded')
-            author = author.findNext('dc:creator')
 
-    # changes format of lists and images
+    # corrects format of lists and images before converting to markdown
     def format(s):
         for y in range(len(my_list)):
-            my_list[y]['content'] = my_list[y]['content'].replace('</li>','</li>\n')
+            #searches for the captions and singles them out
+            pattern = re.compile(r'<figcaption>[a-z:,/.\-_? =&%0-9A-Z]*<\/figcaption>')
+            caption = pattern.findall(my_list[y]['content'])
+
+            #corrects caption and image tags
+            for t in range(len(caption)):
+                my_list[y]['content'] = my_list[y]['content'].replace(caption[t], '')
+                caption[t] = caption[t].replace('<figcaption>', '')
+                caption[t] = caption[t].replace('</figcaption>', '')
+                #adds the caption to the end of the image
+                my_list[y]['content'] = my_list[y]['content'].replace('/></figure>','></img>' + caption[t] + '</p>')
+
+            #replaces image end tag and list tags
             my_list[y]['content'] = my_list[y]['content'].replace('/></figure>','></img></p>')
-            my_list[y]['content'] = my_list[y]['content'].replace('<figcaption>', '')
-            my_list[y]['content'] = my_list[y]['content'].replace('</figcaption>', '')
             my_list[y]['content'] = my_list[y]['content'].replace('<img','<p><img')
+            my_list[y]['content'] = my_list[y]['content'].replace('</li>','</li>\n')
 
     # converts to markdown
     def toMarkdown(s):
+
         for z in range(len(my_list)):
-            my_list[z]['content']= tomd.convert(my_list[z]['content'])
+            #searches for articles written with the wp editor
+            # or written in html within wp
+            pattern = re.compile(r'<!-- wp:paragraph -->')
+            search = pattern.search(my_list[z]['content'])
+
+            if (search != None):
+                #articles written in wp editor are converted
+                my_list[z]['content']= tomd.convert(my_list[z]['content'])
+            else:
+                #tags are changed for html new line and list elements
+                my_list[z]['content'] = my_list[z]['content'].replace('\n','<br>')
+                my_list[z]['content'] = my_list[z]['content'].replace('<li>','<br><li>')
+                my_list[z]['content'] = my_list[z]['content'].replace('</li>','</li><br>')
+                # a different converter is used that is better for html
+                # that was written within the wp editor
+                my_list[z]['content'] = md(my_list[z]['content'])
         # double checks that empty articles are removed from list
         s.emptyContents()
+        #sends for the ipfs image search
+        s.ipfs_search()
 
-    #onverts to proper string format
+    #takes links of images and adds them to kauri ipfs
+    def ipfs_search(s):
+        token = parser.get('information','jwt')
+        for q in range(len(my_list)):
+                # searches for the image
+                pattern = re.compile(r'\!\[\]\([a-z:,/.\-_?=&%0-9A-Z]*\)')
+                src = pattern.findall(my_list[q]['content'])
+                #removes tags and creates a string of just the link
+                for r in range(len(src)):
+                    # gets rid of brackets to find the link
+                    src[r]=src[r].replace('![]', '')
+                    src[r]=src[r].replace('(', '')
+                    src[r]=src[r].replace(')','')
+                    #sends it to the ipfs handler to upload
+                    ipfs = IpfsHandler(src[r],token)
+                    ipfs_link = ipfs.ipfs_url
+                    #replaces the link with the new ipfs link
+                    my_list[q]['content']= my_list[q]['content'].replace(src[r],ipfs_link)
+
+    #converts to proper string format
     def __str__(s):
         string = json.dumps(my_list)
         return string
