@@ -37,6 +37,7 @@ class WpConverter():
         for q in range(len(my_list)):
             #fixes common tag errors from html
             my_list[q]['content'] = my_list[q]['content'].replace('<em> ','<em>')
+            # there are two of the following because for some reason it gltiches 
             my_list[q]['content'] = my_list[q]['content'].replace(' </em>','</em>')
             my_list[q]['content'] = my_list[q]['content'].replace(' </em>', '</em>')
             my_list[q]['content'] = my_list[q]['content'].replace('<strong >','<strong>')
@@ -136,7 +137,7 @@ class WpConverter():
                 my_list[z]['content'] = md(my_list[z]['content'])
         # double checks that empty articles are removed from list
         s.emptyContents()
-        #sends for the ipfs image search 
+        #sends for the ipfs image search
         s.ipfs_search()
 
     #takes links of images and adds them to kauri ipfs
