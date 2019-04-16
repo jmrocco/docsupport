@@ -66,9 +66,9 @@ def retrieve_content():
             wp_json_object = json.loads(wp_string)
 
             #individually send the articles to sync
-            for x in range(len(wp_json_object)):
-                object = wp_json_object[x]
-                syncToKauri(object)
+            # for x in range(len(wp_json_object)):
+            #     object = wp_json_object[x]
+            #     syncToKauri(object)
 
         #recognized that it is not a wordpress supported file
         else:
