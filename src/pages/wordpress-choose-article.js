@@ -1,11 +1,13 @@
 //TODO->Line 10: Proper userId
 //TODO->Line 85: replace dev with real url
 //TODO->Line 87: make sure website reroutes to proper profile (needs correct userId)
+
 import React, { Component } from 'react';
 import Layout from '../components/layout';
 import Loader from 'react-loader-spinner';
 import styles from './base.module.css';
-import Cookies from 'js-cookie'
+import Cookies from 'js-cookie';
+import { navigate } from 'gatsby';
 let article_list = [];
 
 let load = false
@@ -37,22 +39,28 @@ export default class WpArticlePage extends Component {
         this.handleSelect = this.handleSelect.bind(this)
         this.selectAll = this.selectAll.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.convertLink = this.convertLink.bind(this)
 
         const file = this.props.location.state ? this.props.location.state.file : []
+        const wpURL = this.props.location.state ? this.props.location.state.wpURL : false
         load = true
-
         this.state = {
             loading: true,
             sFile : file,
             articles: '',
             allSelected: '',
-            selected: []
+            selected: [],
+            wpURL: wpURL
         }
-
 
     };
 
     componentDidMount() {
+
+      if (this.state.wpURL){
+        this.convertLink();
+      }
+      else {
         const obj = {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -68,7 +76,29 @@ export default class WpArticlePage extends Component {
                 this.setState({articles:article_list,loading: false, allSelected: article_list,
                 selected : article_list.slice(0)});
         })
+      }
     };
+
+    convertLink() {
+      const obj = {
+        method: 'POST',
+        body: JSON.stringify(this.state.wpURL)
+      }
+      fetch(app_url+'/importwpLink', obj)
+          .then(response => response.json())
+          .then((response) => {
+              for(let i = 0; i < response.data.length; i++){
+                  article_list.push(response.data[i]);
+              }
+              this.setState({articles:article_list,loading: false, allSelected: article_list,
+              selected : article_list.slice(0)});
+      })
+      .catch(error => {
+        console.error(error)
+        alert('Invalid URL: Please enter a valid URL.')
+        navigate("/wordpress");
+      })
+    }
 
     handleSubmit() {
 

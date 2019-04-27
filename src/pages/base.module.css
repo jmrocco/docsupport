@@ -45,3 +45,42 @@
 .checkbox {
     margin-right: 10px;
 }
+
+
+.wpLink {
+  border: 1px solid #979797;
+  box-sizing: border-box;
+  border-radius: 6px;
+  margin-left: 580px;
+  margin-top: -31px;
+  padding-left: 5px;
+  width: 300px;
+  font-size: 14px;
+  display: flex;
+}
+
+.choose{
+  width: 230px;
+}
+
+.wpLabel{
+  box-sizing: border-box;
+  margin-left: 15px;
+}
+
+#guidelines ,h3 {
+  font-size: 20px;
+  box-sizing: border-box;
+  margin-right: 200px;
+  margin-top: 40px;
+
+}
+#guidelines, p {
+  box-sizing: border-box;
+  margin-top: 30px;
+}
+
+#guidelines, #note {
+  box-sizing: border-box;
+  margin-top: 20px
+}

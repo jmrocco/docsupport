@@ -1,5 +1,5 @@
-#TODO->Line 51 and 52: Gateway and jwt token
-#TODO->Line 32: jwt token
+#TODO->Line 54 and 55: Gateway and jwt token
+#TODO->Line 33: jwt token
 
 import logging
 import requests
@@ -10,11 +10,8 @@ from file_handler import IpfsHandler
 
 
 class syncToKauri():
-    global parser
+
     global status
-    # reads from the config file
-    parser = ConfigParser()
-    parser.read('config.ini')
 
     def __init__(s,article):
         s.article = article
@@ -28,15 +25,17 @@ class syncToKauri():
         wp_string = s.__str__(s.article)
         wp_json_object = json.loads(wp_string)
 
-
+    #takes all images and uploads them to kauri ipfs
     def ipfs_upload(s):
-        token = parser.get('information','jwt')
-        # searches for the image
+
+        token = 'insert-token-here'
+        # searches for images
         pattern = re.compile(r'\!\[\]\([a-z:,/.\-_?=&%0-9A-Z]*\)')
         src = pattern.findall(wp_json_object['content'])
         #removes tags and creates a string of just the link
         for r in range(len(src)):
             # gets rid of brackets to find the link
+            print('within for statement' + r)
             src[r]=src[r].replace('![]', '')
             src[r]=src[r].replace('(', '')
             src[r]=src[r].replace(')','')
@@ -48,18 +47,15 @@ class syncToKauri():
 
 
     def importer(s):
-        
         global status
         # grabs token, gateway, and header
-        token = parser.get('information','jwt')
-        gateway = parser.get('information','gateway')
+        token = 'insert-token-here'
+        gateway = 'insert-gateway-here'
         headers = {"Content-Type": "application/json"}
         headers['X-Auth-Token'] = 'Bearer %s' % token
         md_output= []
 
-
-
-        #creates the article
+        #creates the article to send
         newArticle = {
             "query" : "mutation submitNewArticle($title: String, $description: String, $content: String, $attributes: Map_String_StringScalar) { submitNewArticle (title: $title, description: $description, content: $content, attributes: $attributes) {hash} }",
             "variables" : {
@@ -74,13 +70,12 @@ class syncToKauri():
             "operationName" : "submitNewArticle"
             }
         #sends the article
-
         p = requests.post(gateway, headers = headers, data = json.dumps(newArticle))
 
         #basic logging of successes and failures
 
         if p.ok:
-            # if it was successful
+            # if it was successful, logs the success and saves status as true
             logging.basicConfig(filename = 'sync.log', filemode = 'a', format='%(name)s -%(process)d - %(asctime)s - %(levelname)s - %(message)s', level = logging.INFO)
             logging.info( "title of article: " + wp_json_object['title'] + "Success : True")
             status = True

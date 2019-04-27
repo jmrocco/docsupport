@@ -18,7 +18,7 @@ export default class IndexPage extends Component {
                       import to Kauri.The importer will redirect you to
                       the proper page where you will paste a URL or select a file.</p>
                       <p>You will have the chance to review which articles you want to
-                      import. After importing, you 'll be redirected to your Kauri profile
+                      import. After importing, you'll be redirected to your Kauri profile
                       and can view the articles in the "Drafts" section.</p>
                       <button className={styles.button} onClick={this.handleClick('wordpress')}>Wordpress</button>
                       <button className={styles.button} onClick={this.handleClick('medium')}>Medium</button>

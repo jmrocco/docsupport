@@ -1,3 +1,5 @@
+#TODO-> Change ipfs line 17
+
 import requests
 import os
 import shutil
@@ -12,7 +14,7 @@ class IpfsHandler:
         # config variables
         self.config = configparser.RawConfigParser()
         self.config.read('config.ini')
-        self.kauri_ipfs = self.config['information']['ipfs']
+        self.kauri_ipfs = 'https://api.dev.kauri.io:443/ipfs/'
         self.JWT_token = token
         # file variables
         self.ipfs_url = None
