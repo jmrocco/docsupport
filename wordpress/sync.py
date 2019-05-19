@@ -6,7 +6,7 @@ import requests
 import json
 from configparser import ConfigParser
 import re
-from file_handler import IpfsHandler
+from wordpress.file_handler import IpfsHandler
 
 
 class syncToKauri():

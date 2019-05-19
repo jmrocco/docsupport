@@ -1,14 +1,14 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
-import re 
-from urllib.parse import urlparse, unquote 
+import re
+from urllib.parse import urlparse, unquote
 import requests
 from bs4 import BeautifulSoup
 
-from model import User, Post, Publication, Tag, Image, OutputFormat, to_dict 
-from constant import ROOT_URL, HTML_PARSER
+from medium.model import User, Post, Publication, Tag, Image, OutputFormat, to_dict
+from medium.constant import ROOT_URL, HTML_PARSER
 
-from file_handler import IpfsHandler
+from medium.file_handler import IpfsHandler
 
 def parse_user(payload):
     user_dict = payload["payload"]["user"]
@@ -345,7 +345,7 @@ def to_markdown(medium_tag, token):
                         req = requests.get(raw_url)
                         if req.ok:
                             code_html = BeautifulSoup(req.content, HTML_PARSER)
-                            return '\n```\n{}\n```\n\n'.format(code_html.prettify())           
+                            return '\n```\n{}\n```\n\n'.format(code_html.prettify())
                     except:
                         return None
 
@@ -355,4 +355,3 @@ def to_markdown(medium_tag, token):
 
     else:
         return None
-

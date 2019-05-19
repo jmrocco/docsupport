@@ -1,8 +1,16 @@
-#ignore ini
+#config files
 *.ini
-
-#ignore create file
 create_config.py
 
-#ignore log file
+#logging
 sync.log
+
+#Cache and Init
+_init__.py
+ReadME.md
+_pycache_
+
+#Wordpress old docs
+docbase.py
+mkdocs.py
+cli.py
