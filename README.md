@@ -2,7 +2,7 @@
 
 While working at ConsenSys for team Kauri, I created a Wordpress to Markdown Converter. Users submit either an .xml Wordpress file or a link to their Wordpress site.The Wordpress script extracts articles/posts and converts them into a readable Markdown format which is the preferred format for https://kauri.io/.
 
-Working on top of the pre-existing Medium to Markdown converter, I added Wordpress support and updated the frontend user interface.
+Working on top of the pre-existing Medium to Markdown converter, I added Wordpress support and created a simple frontend user interface.
 
 ## Languages & Frameworks
 
