@@ -12,8 +12,8 @@ from wordpress.sync import syncToKauri
 from urllib.parse import urlparse, quote, unquote
 from posixpath import join as urljoin
 
-from my_parser import parse_post_detail
-from post_wrangler import (
+from medium.my_parser import parse_post_detail
+from medium.post_wrangler import (
     get_publ_list,
     pull_user_list,
     get_solo_article,

@@ -3,8 +3,9 @@
 *.ini
 node_modules
 yarn-error.log
-
+sync.log
 __pycache__/
+__init__.py
 
 # Build directory
 /public
@@ -13,3 +14,7 @@ __pycache__/
 *.txt
 *.swp
 *.pyc
+
+
+# Git
+.gcloudignore

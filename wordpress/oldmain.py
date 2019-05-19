@@ -1,3 +1,6 @@
+#original wordpress main.py
+#no longer in use: use for reference
+
 import os
 import sys
 import json

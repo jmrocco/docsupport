@@ -3,7 +3,7 @@ import tomd
 import json
 import re
 from bs4 import BeautifulSoup
-from file_handler import IpfsHandler
+from wordpress.file_handler import IpfsHandler
 from markdownify import markdownify as md
 
 
