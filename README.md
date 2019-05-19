@@ -1,24 +1,22 @@
-# docsupport
+### Backend
+[Flask App](http://flask.pocoo.org/)
 
-![](https://github.com/wilbarnes/docsupport/blob/master/gh-to-kauri-export.jpg)
+```main.py```
 
-in progress:
-* writing code to move the markdown source files to kauri dev into draft state
-* understand messaging signing needs, if needed, github authentication, attribution
-* webhook from GH
-* need to understand implications of documentation licensing
+### Frontend
+[React App](https://reactjs.org/)
 
+```src/pages/index.js```
 
-right now the code is lightweight with no external libraries
-
-with the below command you can clone the repo, setup basic directories, find and parse the mkdocs.yml file into an indexed dictionary to send to kauri new collection. the index is designed so that we'll be able to layout the files as they would be in mkdocs or any other doc builder
+### To Run
 ```
-$ python3 main.py -r <insert-mkdocs-based-project-here>
-```
+git clone https://github.com/kcole16/medium-import-frontend
 
-for example (in terminal):
-```
-python3 main.py -r https://github.com/wilbarnes/smart-contract-best-practices
-```
+cd medium-import-frontend/
 
-the output looks weird because it's using python's prettyprint library for debugging, which prints the dicts in alphabetic order
+npm install -g gatsby-cli
+
+gatsby develop
+
+python main.py
+```

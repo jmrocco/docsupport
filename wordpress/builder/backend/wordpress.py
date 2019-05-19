@@ -3,19 +3,14 @@ import tomd
 import json
 import re
 from bs4 import BeautifulSoup
-from configparser import ConfigParser
 from file_handler import IpfsHandler
 from markdownify import markdownify as md
 
 
 class WpConverter():
-    global parser
-    # reads from the config file
-    parser = ConfigParser()
-    parser.read('config.ini')
 
-    def __init__(s,path):
-        s.path = path
+    def __init__(s,file):
+        s.file = file
         s.create_file = s.createFile()
         s.find_contents = s.findContents()
         s.empty_contents = s.emptyContents()
@@ -29,22 +24,21 @@ class WpConverter():
         global my_list
         my_list = []
 
-        file = open(s.path,"r",encoding = "utf8")
-        content = file.read()
+        content = s.file
         soup = BeautifulSoup(content,features = "xml")
 
     def htmlParse(s):
         for q in range(len(my_list)):
             #fixes common tag errors from html
             my_list[q]['content'] = my_list[q]['content'].replace('<em> ','<em>')
-            # there are two of the following because for some reason it gltiches 
+            # there are two of the following because for some reason it gltiches
             my_list[q]['content'] = my_list[q]['content'].replace(' </em>','</em>')
             my_list[q]['content'] = my_list[q]['content'].replace(' </em>', '</em>')
             my_list[q]['content'] = my_list[q]['content'].replace('<strong >','<strong>')
             my_list[q]['content'] = my_list[q]['content'].replace('<strong> ','<strong>')
             my_list[q]['content'] = my_list[q]['content'].replace(' </strong>','</strong>')
 
-    #delete blank articles from list
+    #delete any blank articles from list
     def emptyContents(s):
         count = 0
         while(count!= len(my_list)):
@@ -61,6 +55,7 @@ class WpConverter():
                 del my_list[count]
             else:
                 count += 1
+
     #find content in xml file
     def findContents(s):
 
@@ -138,26 +133,7 @@ class WpConverter():
         # double checks that empty articles are removed from list
         s.emptyContents()
         #sends for the ipfs image search
-        s.ipfs_search()
 
-    #takes links of images and adds them to kauri ipfs
-    def ipfs_search(s):
-        token = parser.get('information','jwt')
-        for q in range(len(my_list)):
-                # searches for the image
-                pattern = re.compile(r'\!\[\]\([a-z:,/.\-_?=&%0-9A-Z]*\)')
-                src = pattern.findall(my_list[q]['content'])
-                #removes tags and creates a string of just the link
-                for r in range(len(src)):
-                    # gets rid of brackets to find the link
-                    src[r]=src[r].replace('![]', '')
-                    src[r]=src[r].replace('(', '')
-                    src[r]=src[r].replace(')','')
-                    #sends it to the ipfs handler to upload
-                    ipfs = IpfsHandler(src[r],token)
-                    ipfs_link = ipfs.ipfs_url
-                    #replaces the link with the new ipfs link
-                    my_list[q]['content']= my_list[q]['content'].replace(src[r],ipfs_link)
 
     #converts to proper string format
     def __str__(s):

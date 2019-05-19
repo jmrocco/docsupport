@@ -1,0 +1,12 @@
+root -17928 - 2019-04-16 11:52:07,482 - INFO - title of article: 
+				Hello world!		Success : True
+root -17928 - 2019-04-16 11:52:08,000 - INFO - title of article: 
+				Sample Page		Success : True
+root -17928 - 2019-04-16 11:52:08,412 - INFO - title of article: 
+				Privacy Policy		Success : True
+root -17928 - 2019-04-16 11:52:08,878 - INFO - title of article: 
+				Smart Contract Utilities with ZeppelinOS: Linking, Publishing, and Vouching		Success : True
+root -17928 - 2019-04-16 11:52:09,235 - INFO - title of article: 
+				Smart Contract Utilities with ZeppelinOS: Introduction		Success : True
+werkzeug -17928 - 2019-04-16 11:52:09,302 - INFO - 127.0.0.1 - - [16/Apr/2019 11:52:09] "POST /syncwp HTTP/1.1" 200 -
+werkzeug -17928 - 2019-04-16 11:54:38,128 - INFO -  * Detected change in 'C:\\Users\\jrocc\\Documents\\Kauri\\Mar\\Importer\\frontend\\medium\\importer\\wordpress\\sync.py', reloading

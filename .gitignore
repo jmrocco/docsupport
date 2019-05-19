@@ -1,8 +1,15 @@
-# ignore all ini files
+# Project dependencies
+.cache
 *.ini
+node_modules
+yarn-error.log
 
-#ignore create file
-create_config.py
+__pycache__/
 
-#ignore log file
-sync.log
+# Build directory
+/public
+.DS_Store
+*.json
+*.txt
+*.swp
+*.pyc
